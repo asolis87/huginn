@@ -12,6 +12,10 @@ import (
 // at all. The file only overrides defaults — a prompt must never fail to draw
 // because its configuration is missing or malformed.
 type Config struct {
+	// Theme is a named color preset applied before the user's own keys (see
+	// theme.go). Defaults to "huginn". Set "" or an unknown name to keep the
+	// plain built-in defaults. User config keys still override the theme.
+	Theme string `toml:"theme"`
 	// Style selects the visual renderer: "plain" (text colored, space-joined,
 	// the original look) or "powerline" (colored blocks joined by flowing
 	// separator glyphs). Unknown values fall back to plain.
@@ -29,7 +33,8 @@ type Config struct {
 
 // CwdConfig configures the current-directory segment.
 type CwdConfig struct {
-	Color string `toml:"color"` // ANSI name or hex (see color.go)
+	Color string `toml:"color"` // text/fg color: ANSI name or hex (see color.go)
+	Bg    string `toml:"bg"`    // powerline block background; "" = same as Color
 }
 
 // SymbolConfig configures the prompt character (❯) and its colors.
@@ -42,14 +47,17 @@ type SymbolConfig struct {
 // GitConfig configures the git segment.
 type GitConfig struct {
 	Icon       string `toml:"icon"`        // glyph shown before the branch name
-	Color      string `toml:"color"`       // ANSI name or hex (see color.go)
-	DirtyColor string `toml:"dirty_color"` // color for the dirty marker
+	Color      string `toml:"color"`       // text/fg color: ANSI name or hex
+	Bg         string `toml:"bg"`          // powerline block bg; "" = same as Color
+	DirtyColor string `toml:"dirty_color"` // text/fg color when the tree is dirty
+	DirtyBg    string `toml:"dirty_bg"`    // powerline block bg when dirty; "" = DirtyColor
 }
 
 // NodeConfig configures the Node.js segment.
 type NodeConfig struct {
 	Icon  string `toml:"icon"`  // glyph shown for a Node project
-	Color string `toml:"color"` // color name (see colorByName)
+	Color string `toml:"color"` // text/fg color: ANSI name or hex
+	Bg    string `toml:"bg"`    // powerline block bg; "" = same as Color
 	// ShowActiveVersion, when true, resolves the ACTIVE node version by running
 	// `node --version` (~19ms, off the critical path via the async pass) instead
 	// of only the version the project declares in a file. Off by default because
@@ -61,10 +69,12 @@ type NodeConfig struct {
 	MismatchColor string `toml:"mismatch_color"`
 }
 
-// defaultConfig returns the built-in defaults. These are the values used when
-// no config file exists or when a field is left unset.
+// defaultConfig returns the built-in base defaults. These are the bare values
+// before any theme; "huginn" is the default theme layered on top (see
+// loadConfig). They double as the fallback when theme = "" or unknown.
 func defaultConfig() Config {
 	return Config{
+		Theme: "huginn",
 		Style: "plain",
 		Cwd: CwdConfig{
 			Color: "blue",
@@ -87,18 +97,32 @@ func defaultConfig() Config {
 	}
 }
 
-// loadConfig reads and decodes the config file, layering it over the defaults.
-// A missing file is normal (returns defaults). A malformed file is tolerated:
-// we keep whatever decoded plus defaults, rather than failing the prompt.
+// loadConfig builds the effective config in three cascading layers:
+//
+//	base defaults  →  named theme  →  user config.toml
+//	  (weakest)                          (strongest)
+//
+// The theme is chosen by the user's `theme` key (default "huginn"), so we read
+// the file once to learn the theme, seed the theme colors, then decode the file
+// again on top so per-field user overrides still win. A missing file yields the
+// default theme; a malformed file is tolerated (we keep what we have).
 func loadConfig() Config {
 	cfg := defaultConfig()
 
 	path := configPath()
 	if path == "" {
+		applyTheme(&cfg, cfg.Theme) // no file: still apply the default theme
 		return cfg
 	}
-	// Decode on top of cfg: present keys override defaults, absent keys keep them.
-	// On a decode error we deliberately ignore it and return what we have.
+
+	// Pass 1: learn which theme the user wants (their key overrides the default).
+	_, _ = toml.DecodeFile(path, &cfg)
+
+	// Layer the theme over the base defaults.
+	applyTheme(&cfg, cfg.Theme)
+
+	// Pass 2: re-apply the user's file so explicit per-field overrides beat the
+	// theme. Absent keys keep the theme's values.
 	_, _ = toml.DecodeFile(path, &cfg)
 	return cfg
 }

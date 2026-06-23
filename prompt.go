@@ -79,8 +79,8 @@ func segmentCwd(cfg Config) Segment {
 	} else {
 		cwd = filepath.Clean(cwd)
 	}
-	color := orDefault(cfg.Cwd.Color, "blue")
-	return Segment{text: cwd, fg: color, bg: color}
+	fg := orDefault(cfg.Cwd.Color, "blue")
+	return Segment{text: cwd, fg: fg, bg: orDefault(cfg.Cwd.Bg, fg)}
 }
 
 // segmentGit describes the git state: a configurable icon, the branch name (or
@@ -93,12 +93,14 @@ func segmentGit(git *gitInfo, cfg GitConfig) Segment {
 		label = cfg.Icon + " " + label
 	}
 
-	color := orDefault(cfg.Color, "yellow")
+	fg := orDefault(cfg.Color, "yellow")
+	bg := orDefault(cfg.Bg, fg)
 	if git.dirty {
 		label += " ●"
-		color = orDefault(cfg.DirtyColor, "red")
+		fg = orDefault(cfg.DirtyColor, "red")
+		bg = orDefault(cfg.DirtyBg, fg)
 	}
-	return Segment{text: label, fg: color, bg: color}
+	return Segment{text: label, fg: fg, bg: bg}
 }
 
 // segmentNode describes the Node project marker: a configurable icon plus a
@@ -115,11 +117,13 @@ func segmentNode(node *nodeInfo, cfg NodeConfig) Segment {
 		label += version
 	}
 
-	color := orDefault(cfg.Color, "green")
+	fg := orDefault(cfg.Color, "green")
+	bg := orDefault(cfg.Bg, fg)
 	if mismatch {
-		color = orDefault(cfg.MismatchColor, "red")
+		fg = orDefault(cfg.MismatchColor, "red")
+		bg = fg // mismatch always recolors the whole block
 	}
-	return Segment{text: label, fg: color, bg: color}
+	return Segment{text: label, fg: fg, bg: bg}
 }
 
 // nodeVersionLabel decides what version text to show and whether it represents

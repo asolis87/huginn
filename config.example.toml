@@ -12,12 +12,20 @@
 #   - Hex:       "#7aa2f7" (or shorthand "#abc"). An exact 24-bit color, fixed
 #                regardless of terminal theme.
 
+# Named color preset, applied before your own keys below. "huginn" (the
+# default) is a Norse raven palette: graphite plumage, frost-blue highlights,
+# rune-gold accents. Set "" to start from the bare built-in colors. Any key you
+# set below still overrides the theme.
+theme = "huginn"
+
 # Visual style: "plain" (text + spaces) or "powerline" (colored blocks + arrows).
 style = "plain"
 
 # Put the prompt symbol on its own second line (type below the status row).
 symbol_on_new_line = false
 
+# Each segment has `color` (text/fg) and, for powerline, `bg` (block background).
+# Omit bg to reuse color. The huginn theme sets contrasting fg/bg per segment.
 [cwd]
 color = "blue"
 

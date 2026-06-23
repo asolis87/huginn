@@ -13,6 +13,9 @@ Starship and Powerlevel10k. Built as a single static Go binary.
   flowing separators).
 - **Full theming** — every color is configurable via ANSI names (follow the
   terminal theme) or hex `#rrggbb` (exact truecolor).
+- **Built-in theme** — ships with `huginn`, a Norse raven palette (graphite
+  plumage, frost-blue highlights, rune-gold accents), applied by default and
+  fully overridable per field.
 
 ## Install
 

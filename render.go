@@ -89,12 +89,16 @@ func (p powerlineRenderer) Render(s Shell, segs []Segment) string {
 
 	var b strings.Builder
 	for i, seg := range chain {
-		// The block: " text " over this segment's bg. The text color is a fixed
-		// high-contrast foreground (not seg.fg, which equals the bg here and
-		// would be invisible). Powerline blocks carry identity in the bg; the
-		// text just needs to be readable on top.
+		// The block: " text " over this segment's bg. Text color: use the
+		// segment's own fg when it differs from the bg (themes set an explicit
+		// light-on-dark fg); otherwise fall back to an auto contrast color, since
+		// fg==bg would be invisible.
+		textColor := resolveFg(seg.fg)
+		if seg.fg == "" || seg.fg == seg.bg {
+			textColor = textColorOn(seg.bg)
+		}
 		b.WriteString(seq(s, resolveBg(seg.bg)))
-		b.WriteString(seq(s, textColorOn(seg.bg)))
+		b.WriteString(seq(s, textColor))
 		b.WriteString(" " + seg.text + " ")
 
 		// The separator between this block and the next.
