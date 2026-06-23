@@ -1,6 +1,6 @@
-# miprompt — example configuration
+# huginn — example configuration
 #
-# Drop this at ~/.config/miprompt/config.toml (or $XDG_CONFIG_HOME/miprompt/).
+# Drop this at ~/.config/huginn/config.toml (or $XDG_CONFIG_HOME/huginn/).
 # Every field is optional: omit a key to use the built-in default. A missing or
 # malformed file falls back to defaults — the prompt never fails to render.
 #

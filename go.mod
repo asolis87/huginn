@@ -1,4 +1,4 @@
-module github.com/asolis87/miprompt
+module github.com/asolis87/huginn
 
 go 1.26.4
 

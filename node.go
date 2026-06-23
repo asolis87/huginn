@@ -13,7 +13,7 @@ import (
 
 // nodeCachePrefix is the filename prefix shared by every per-directory node
 // cache file, used both to build and to sweep them.
-const nodeCachePrefix = "miprompt-node."
+const nodeCachePrefix = "huginn-node."
 
 // nodeInfo holds the Node.js context for the prompt. A nil *nodeInfo means
 // "this is not a Node project" and the segment is hidden entirely.

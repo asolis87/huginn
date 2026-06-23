@@ -1,4 +1,4 @@
-# miprompt
+# huginn
 
 A fast, async, multi-shell prompt generator (zsh + fish), in the spirit of
 Starship and Powerlevel10k. Built as a single static Go binary.
@@ -19,7 +19,7 @@ Starship and Powerlevel10k. Built as a single static Go binary.
 From GitHub (any machine with Go):
 
 ```sh
-go install github.com/asolis87/miprompt@latest   # builds to ~/go/bin/miprompt
+go install github.com/asolis87/huginn@latest   # builds to ~/go/bin/huginn
 ```
 
 Or from a local checkout:
@@ -36,7 +36,7 @@ Add to `~/.zshrc` (and remove any other prompt theme, e.g. Powerlevel10k —
 two prompt managers fighting over `$PROMPT` will conflict):
 
 ```sh
-eval "$(miprompt init zsh)"
+eval "$(huginn init zsh)"
 ```
 
 ### fish
@@ -45,16 +45,16 @@ Add to `~/.config/fish/config.fish`:
 
 ```fish
 if status is-interactive
-    miprompt init fish | source
+    huginn init fish | source
 end
 ```
 
-> Note: `miprompt init fish | source`, NOT `eval`. fish's `eval` does not
+> Note: `huginn init fish | source`, NOT `eval`. fish's `eval` does not
 > reliably handle the multiline function/event-handler block.
 
 ## Configuration
 
-Optional file at `~/.config/miprompt/config.toml` (honors `$XDG_CONFIG_HOME`).
+Optional file at `~/.config/huginn/config.toml` (honors `$XDG_CONFIG_HOME`).
 Everything has defaults; a missing or malformed file falls back to them — the
 prompt never fails to render. See [`config.example.toml`](config.example.toml)
 for all options.
@@ -82,6 +82,6 @@ show_active_version = true   # runs `node --version` (async) to show what's runn
 ## Development
 
 ```sh
-go build -o miprompt .   # local build
+go build -o huginn .   # local build
 go test ./...            # run tests
 ```

@@ -107,12 +107,12 @@ func loadConfig() Config {
 // and falling back to ~/.config. Returns "" if no home can be determined.
 func configPath() string {
 	if dir := os.Getenv("XDG_CONFIG_HOME"); dir != "" {
-		return filepath.Join(dir, "miprompt", "config.toml")
+		return filepath.Join(dir, "huginn", "config.toml")
 	}
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return ""
 	}
-	return filepath.Join(home, ".config", "miprompt", "config.toml")
+	return filepath.Join(home, ".config", "huginn", "config.toml")
 }
 

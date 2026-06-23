@@ -36,7 +36,7 @@ func main() {
 //     user opted in, to avoid a wasteful `node` fork when the feature is off.
 func runCompute(args []string) {
 	if len(args) < 1 {
-		fmt.Fprintln(os.Stderr, "usage: miprompt compute <dirty-cache-file>")
+		fmt.Fprintln(os.Stderr, "usage: huginn compute <dirty-cache-file>")
 		os.Exit(1)
 	}
 	writeDirtyCache(args[0])
@@ -52,7 +52,7 @@ func runCompute(args []string) {
 // runInit prints the integration snippet for the requested shell.
 func runInit(args []string) {
 	if len(args) < 1 {
-		fmt.Fprintln(os.Stderr, "usage: miprompt init <zsh|bash|fish>")
+		fmt.Fprintln(os.Stderr, "usage: huginn init <zsh|bash|fish>")
 		os.Exit(1)
 	}
 	shell, ok := parseShell(args[0])
@@ -107,5 +107,5 @@ func runPrompt(args []string) {
 }
 
 func usage() {
-	fmt.Fprintln(os.Stderr, "usage: miprompt <init|prompt> [args]")
+	fmt.Fprintln(os.Stderr, "usage: huginn <init|prompt> [args]")
 }
