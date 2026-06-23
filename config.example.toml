@@ -24,6 +24,15 @@ style = "plain"
 # Put the prompt symbol on its own second line (type below the status row).
 symbol_on_new_line = false
 
+# Plain-style layout. Only applies when style = "plain"; powerline ignores it.
+# Defaults reproduce the original look: segments joined by a single space, no
+# wrapping, no extra color. Tune these to give the plain prompt more structure.
+[plain]
+separator = " "          # placed BETWEEN segments, e.g. " | " or " · "
+separator_color = ""      # color for the separator AND wrap chars; "" = no color
+wrap_left = ""            # placed before each segment, e.g. "[" → [~/dev] [main]
+wrap_right = ""           # placed after each segment, e.g. "]"
+
 # Each segment has `color` (text/fg) and, for powerline, `bg` (block background).
 # Omit bg to reuse color. The huginn theme sets contrasting fg/bg per segment.
 [cwd]

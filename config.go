@@ -25,12 +25,25 @@ type Config struct {
 	// the end of the line as before; powerline omits the symbol entirely and ends
 	// on its closing arrow.
 	SymbolOnNewLine bool           `toml:"symbol_on_new_line"`
+	Plain           PlainConfig    `toml:"plain"`
 	Cwd             CwdConfig      `toml:"cwd"`
 	Git             GitConfig      `toml:"git"`
 	Node            NodeConfig     `toml:"node"`
 	Python          PythonConfig   `toml:"python"`
 	Duration        DurationConfig `toml:"duration"`
 	Symbol          SymbolConfig   `toml:"symbol"`
+}
+
+// PlainConfig configures the plain renderer: how segments are joined and, optionally,
+// wrapped. These are CÓMO (presentation) knobs — they live with the renderer and
+// only affect the "plain" style; powerline ignores them entirely. The defaults
+// reproduce the original look exactly: segments joined by a single bare space,
+// no wrapping, no extra color.
+type PlainConfig struct {
+	Separator      string `toml:"separator"`       // placed BETWEEN segments (not before the first); default " "
+	SeparatorColor string `toml:"separator_color"` // color for the separator AND the wrap strings; "" = no color
+	WrapLeft       string `toml:"wrap_left"`       // placed before each segment, e.g. "["; "" = nothing
+	WrapRight      string `toml:"wrap_right"`      // placed after each segment, e.g. "]"; "" = nothing
 }
 
 // PythonConfig configures the active-Python-environment segment.
@@ -95,6 +108,9 @@ func defaultConfig() Config {
 	return Config{
 		Theme: "huginn",
 		Style: "plain",
+		Plain: PlainConfig{
+			Separator: " ", // single bare space: the original plain look
+		},
 		Cwd: CwdConfig{
 			Color: "blue",
 		},

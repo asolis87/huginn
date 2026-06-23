@@ -26,7 +26,7 @@ func rendererFor(cfg Config) Renderer {
 	case "powerline":
 		return powerlineRenderer{}
 	default:
-		return plainRenderer{}
+		return plainRenderer{cfg: cfg.Plain}
 	}
 }
 
@@ -35,22 +35,48 @@ func rendererFor(cfg Config) Renderer {
 
 // ---- Plain renderer: the original look, segments joined by spaces -----------
 
-type plainRenderer struct{}
+type plainRenderer struct {
+	cfg PlainConfig
+}
 
 // Render draws each segment's text in its foreground color (backgrounds are
-// ignored in plain style), separated by single spaces — reproducing the prompt
-// exactly as it was before theming existed.
-func (plainRenderer) Render(s Shell, segs []Segment) string {
+// ignored in plain style), joined by the configured separator and optionally
+// wrapped (e.g. in brackets). With the default config — separator " ", no wrap,
+// no separator color — the output is byte-for-byte the original plain look.
+//
+// The separator and wrap strings are decoration, not segment content, so they
+// take the configured separator_color (when set), independent of each segment's
+// own foreground. This keeps the structure (dividers, brackets) visually distinct
+// from the data inside it.
+func (p plainRenderer) Render(s Shell, segs []Segment) string {
+	sep := p.cfg.Separator
+	if sep == "" {
+		sep = " "
+	}
+	decorFg := resolveFg(p.cfg.SeparatorColor) // "" when unset → no color, bare runes
+
+	// decorate colors a decoration string (separator/wrap) in decorFg, but emits
+	// NOTHING for an empty string — so an unused wrap or a color set without a wrap
+	// never leaks stray escape pairs around emptiness.
+	decorate := func(text string) string {
+		if text == "" {
+			return ""
+		}
+		return colorize(s, decorFg, text)
+	}
+
 	var b strings.Builder
 	for i, seg := range segs {
 		if i > 0 {
-			b.WriteString(" ")
+			b.WriteString(decorate(sep))
 		}
+		b.WriteString(decorate(p.cfg.WrapLeft))
 		if fg := resolveFg(seg.fg); fg != "" {
 			b.WriteString(colorize(s, fg, seg.text))
 		} else {
 			b.WriteString(seg.text)
 		}
+		b.WriteString(decorate(p.cfg.WrapRight))
 	}
 	return b.String()
 }

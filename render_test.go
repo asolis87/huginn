@@ -33,6 +33,61 @@ func TestPlainRenderUncoloredSegmentHasNoAnsi(t *testing.T) {
 	}
 }
 
+func TestPlainDefaultIsSingleSpaceJoin(t *testing.T) {
+	// The cardinal invariant: with default plain config the output must be the
+	// original look — segments joined by a single bare space, nothing else.
+	segs := []Segment{{text: "a"}, {text: "b"}, {text: "c"}}
+	out := plainRenderer{cfg: defaultConfig().Plain}.Render(ShellFish, segs)
+
+	if out != "a b c" {
+		t.Errorf("default plain join changed: got %q, want %q", out, "a b c")
+	}
+}
+
+func TestPlainCustomSeparator(t *testing.T) {
+	segs := []Segment{{text: "a"}, {text: "b"}, {text: "c"}}
+	out := plainRenderer{cfg: PlainConfig{Separator: " | "}}.Render(ShellFish, segs)
+
+	if out != "a | b | c" {
+		t.Errorf("custom separator: got %q, want %q", out, "a | b | c")
+	}
+}
+
+func TestPlainWrapEachSegment(t *testing.T) {
+	segs := []Segment{{text: "a"}, {text: "b"}}
+	out := plainRenderer{cfg: PlainConfig{Separator: " ", WrapLeft: "[", WrapRight: "]"}}.
+		Render(ShellFish, segs)
+
+	if out != "[a] [b]" {
+		t.Errorf("wrap: got %q, want %q", out, "[a] [b]")
+	}
+}
+
+func TestPlainEmptySeparatorFallsBackToSpace(t *testing.T) {
+	// An empty separator must not glue segments together; it falls back to a space.
+	segs := []Segment{{text: "a"}, {text: "b"}}
+	out := plainRenderer{cfg: PlainConfig{Separator: ""}}.Render(ShellFish, segs)
+
+	if out != "a b" {
+		t.Errorf("empty separator should fall back to space: got %q", out)
+	}
+}
+
+func TestPlainSeparatorColorWithoutWrapEmitsNoStrayEscapes(t *testing.T) {
+	// separator_color set, no wrap, segments have no fg: only the separator should
+	// carry color. Wrap is empty, so NO escape pairs may wrap the empty wrap slots.
+	// Expect exactly one colored separator and no other escape sequences.
+	segs := []Segment{{text: "a"}, {text: "b"}}
+	out := plainRenderer{cfg: PlainConfig{Separator: " | ", SeparatorColor: "red"}}.
+		Render(ShellFish, segs)
+
+	// fish emits raw escapes (no %{ %}): the only \x1b runs belong to the one
+	// separator (a set + a reset = two \x1b). Empty wraps must add none.
+	if got := strings.Count(out, "\x1b["); got != 2 {
+		t.Errorf("expected exactly 2 escapes (one colored separator), got %d: %q", got, out)
+	}
+}
+
 // --- Shell escaping (the easiest thing to break silently) --------------------
 
 func TestColorWrappingPerShell(t *testing.T) {
