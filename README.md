@@ -16,8 +16,16 @@ Starship and Powerlevel10k. Built as a single static Go binary.
 
 ## Install
 
+From GitHub (any machine with Go):
+
 ```sh
-go install .          # builds to ~/go/bin/miprompt
+go install github.com/asolis87/miprompt@latest   # builds to ~/go/bin/miprompt
+```
+
+Or from a local checkout:
+
+```sh
+go install .
 ```
 
 Make sure `~/go/bin` is on your `PATH`.
